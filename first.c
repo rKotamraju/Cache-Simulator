@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<math.h>
 #include<string.h>
+//final
 //create CacheBlock object
 struct CacheBlock{
 	unsigned int valid; //valid bit
@@ -54,6 +55,7 @@ int searchCache(struct CacheBlock*** cache, unsigned long long int address, int 
 	
 	unsigned int setIndex = (address >> numBlockBits) & Mask;
 	unsigned long tag = (address >> numBlockBits) >> numSetBits;
+	//printf("tag : %lu\n", tag);
 
 	//then search for hit or miss
 	// if hit, result = 1
@@ -251,7 +253,7 @@ int main (int argc, char ** argv){
 	unsigned long long int address2;
 	char command2;
 	while(fscanf(secondRead, "%c %llx\n", &command2, &address2)>0){
-		//printf("%c %llx\n", command, address);
+		//printf("address: %llx\n", address2);
 		if(command2 == '#'){
 			break;
 		}
@@ -262,16 +264,17 @@ int main (int argc, char ** argv){
 		else if(searchCache(cache2, address2, numberOfSets, blockSize, associativity) == 0){ 		//miss
 			numMissesWP++;
 			numReadsWP++;
+			writeToCache(cache2, address2, numberOfSets, blockSize, associativity);
 			//printf("miss\n");
 			unsigned long long int prefetchAddress = address2;
 			for(int i = 0; i < prefetchSize; i++){
 				prefetchAddress = prefetchAddress+blockSize;
+				//printf("prefetchAddress : %llx\n", prefetchAddress);
 				if(searchCache(cache2, prefetchAddress, numberOfSets, blockSize, associativity)==0){
 					writeToCache(cache2, prefetchAddress, numberOfSets, blockSize, associativity);
 					numReadsWP++;
 				}
 			}
-			writeToCache(cache2, address2, numberOfSets, blockSize, associativity);
 		}
 	}
 	fclose(secondRead);
